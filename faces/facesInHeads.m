@@ -26,7 +26,7 @@ scenes = {};
 scenes = [scenes, scene];
 %%
 % Because it is a full 3D head, we can rotate and re-render
-thisR.set('asset','001_head_O','rotate',[5 20 0]);
+thisR.set('asset','head_O','rotate',[5 20 0]);
 [scene, results] = piWRS(thisR);
 scenes = [scenes, scene];
 
@@ -46,7 +46,7 @@ skymaps = {'sky-brightfences', ...
     'sky-rainbow.exr', ...
     'ext_LateAfternoon_Mountains_CSP.exr', ...
     'sky-cathedral_interior'
-    }
+    };
 
 for ii = 1:numel(skymaps)
     thisR.set('skymap',skymaps{ii});
@@ -78,30 +78,39 @@ thisR.set('lights','all','delete');
 thisR.set('skymap','sky-brightfences.exr');
 
 % Add our list of materials
-piMaterialsInsert(thisR);
+allMaterials = piMaterialPresets('list');
 
 % look to see which objects we have, to assign materials
 %thisR.show('objects')
 
-% should be a .get :(
-materialMap = thisR.materials.list;
-materials = values(materialMap);
-
 % Loop through our material list
-for ii = 1:numel(materials)
-    thisR.set('asset','001_head_O','material name',materials{ii}.name);
+for ii = 1:numel(allMaterials)
+    piMaterialsInsert(thisR, allMaterials{ii});
+    thisR.set('asset','head_O','material name',materials{ii}.name);
     [scene, results] = piWRS(thisR);
     scenes = [scenes, scene];
 end
 
 %% Now Textures
-thisR.get('texture','macbethchart')
-scenes = [scenes, scene];
+textures = {'macbethchart', 'DupontPaintChip_Vhrel', ...
+    'Hair_Vhrel', 'Clothes_Vhrel'};
 
-thisR.set('texture','macbethchart','scale',0.3);
-[scene, results] = piWRS(thisR);
-scenes = [scenes, scene];
+%{
+BROKEN:
+for ii = 1:numel(textures)
+    thisR.get('texture',textures{ii});
+    thisR.set('texture',textures{ii},'scale',0.3);
+    [scene, results] = piWRS(thisR);
+    scenes = [scenes, scene];
+end
+%}
 
+%{
+needs help:
+
+thisR.set('asset','001_head_O','material name','macbethchart');
+piWRS(thisR); % save it out with modified asset
+thisR.get('texture','macbethchart');
 thisR.set('texture','macbethchart','uscale',0.3);
 thisR.set('texture','macbethchart','vscale',0.3);
 [scene, results] = piWRS(thisR);
@@ -110,15 +119,16 @@ scenes = [scenes, scene];
 thisR.set('texture','macbethchart','vscale',10);
 thisR.set('texture','macbethchart','uscale',10);
 
-thisR.set('asset','001_head_O','material name','head');
+thisR.set('asset','head_O','material name','head');
 
 [scene, results] = piWRS(thisR);
 scenes = [scenes, scene];
-
+%}
 % We can loop through and generate a bunch of separate figures
 faceImages = {};
 for ii=1:numel(scenes)
     faceImages{ii} = facesDetect('scene',scenes{ii},'interactive',false);
+    faceImages{ii} = imadjust(faceImages{ii});
 end
 ieNewGraphWin();
 montage(faceImages);

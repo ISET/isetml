@@ -12,7 +12,7 @@ arguments
     options.image = []; % image object that's already read in
     options.scene = ''; % get a flat image from a scene and evaluate it
     options.interactive = true; % whether to show results
-    options.method = 'VJ' % Viola-Jones Cascade is the default
+    options.method = 'MTCNN'; %'Viola-Jones' % Viola-Jones Cascade is the default
 end
 
 % Read an image or a video frame or an ISET scene
@@ -31,7 +31,7 @@ else
 end
 
 switch options.method
-    case 'VJ'
+    case 'Viola-Jones'
         % Default detector is set for faces
         faceDetect = vision.CascadeObjectDetector();
 
@@ -40,8 +40,19 @@ switch options.method
         faceDetect.MergeThreshold = 3;
         % step asks our detector to look at an image
         foundFaces = step(faceDetect, ourImg);
-    case 'Oxford-CNN'
-        % call its class
+    case 'MTCNN'
+        % A newer, CNN-based, approach
+        [foundFaces, scores, landmarks] = mtcnn.detectFaces(ourImg);
+    case 'Oxford'
+        % Not working yet!!
+        % External library from Oxford Robotics
+        % Not sure "manager" is a great object class name:)
+        % NEEDED:
+        %   take image instead of path?
+        %   sort out other params for use by us
+        manager.detection.detect_faces_frame(framesPath, ...
+            framesPattern, modelPath, facedetPath);
+
 end
 
 % add a rectangle showing any found faces as a box with text
