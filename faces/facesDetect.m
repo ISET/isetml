@@ -56,7 +56,11 @@ switch options.method
 end
 
 % add a rectangle showing any found faces as a box with text
-faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face');
+if ~isempty(foundFaces)
+    faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face');
+else
+    faceOut = ourImg;
+end
 
 % show result directly to the user if asked
 if options.interactive

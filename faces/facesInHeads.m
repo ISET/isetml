@@ -1,6 +1,6 @@
 %% cpFacesHeads
 %
-% 
+%
 % Use Brian's Heads with Face Detector
 % D.Cardinal, Stanford, 2022
 %
@@ -12,8 +12,8 @@ if ~piDockerExists, piDockerConfig; end
 % Load the canonical pbrt head (until we get some others!)
 thisR = piRecipeDefault('scene name','head');
 
-thisR.set('rays per pixel',512);
-% we probably don't need much resolution, given the low-rez of most 
+thisR.set('rays per pixel',128); % was 512, but now are de-noising
+% we probably don't need much resolution, given the low-rez of most
 % face feature algorithms
 thisR.set('film resolution',[320 320]*2);
 thisR.set('n bounces',5);
@@ -80,15 +80,32 @@ thisR.set('skymap','sky-brightfences.exr');
 % Add our list of materials
 allMaterials = piMaterialPresets('list');
 
+% If debugging, pick a couple for starters:
+%allMaterials = {'dots','checkerboard','wood-mahogany'}; % 'macbethchart'};
+
 % look to see which objects we have, to assign materials
 %thisR.show('objects')
 
 % Loop through our material list
 for ii = 1:numel(allMaterials)
-    piMaterialsInsert(thisR, allMaterials{ii});
-    thisR.set('asset','head_O','material name',materials{ii}.name);
-    [scene, results] = piWRS(thisR);
-    scenes = [scenes, scene];
+    try
+        piMaterialsInsert(thisR, 'names',allMaterials{ii});
+    catch
+        warning('Material: %s insert failed. \n',allMaterials{ii});
+    end
+
+end
+
+ourMaterialsMap = thisR.get('materials');
+ourMaterials = values(ourMaterialsMap);
+for ii = 1:numel(ourMaterials)
+    try
+        thisR.set('asset','head_O','material',ourMaterials{ii});
+        [scene, results] = piWRS(thisR);
+        scenes = [scenes, scene];
+    catch
+        warning('Material: %s failed. \n',allMaterials{ii});
+    end
 end
 
 %% Now Textures
@@ -127,8 +144,10 @@ scenes = [scenes, scene];
 % We can loop through and generate a bunch of separate figures
 faceImages = {};
 for ii=1:numel(scenes)
-    faceImages{ii} = facesDetect('scene',scenes{ii},'interactive',false);
-    faceImages{ii} = imadjust(faceImages{ii});
+    faceImages{ii} = facesDetect('scene',scenes{ii}, ...
+        'interactive',true,'method','MTCNN');
+    % trying to get rid of specular noise / maybe an nr call?
+    %faceImages{ii} = imadjust(faceImages{ii},[0 0 0 ; .95 .95 .95]);
 end
 ieNewGraphWin();
 montage(faceImages);
