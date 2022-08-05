@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addonCore><label>MTCNN Face Detection</label><version>1.2.4</version><type>Toolbox</type><identifier>d2cc38da-9b3d-4307-8cfd-4a34d5a442bf</identifier><summary>Face detection and landmark localisation using deep learning.</summary><description>This repository implements deep learning based face detection and facial landmark localisation using Multi-Task Cascaded CNNs.
+For more details see the GitHub repository: https://github.com/matlab-deep-learning/mtcnn-face-detection</description><createdBy name="Justin Pinkney"/><image>resources/screenshot.png</image></addonCore>
