@@ -12,7 +12,7 @@ if ~piDockerExists, piDockerConfig; end
 % Load the canonical pbrt head (until we get some others!)
 thisR = piRecipeDefault('scene name','head');
 
-thisR.set('rays per pixel',128); % was 512, but now are de-noising
+thisR.set('rays per pixel',128); 
 % we probably don't need much resolution, given the low-rez of most
 % face feature algorithms
 thisR.set('film resolution',[320 320]*2);
@@ -69,6 +69,7 @@ thisR.set('from',oFrom);
 thisR.set('object distance', 1.5);
 thisR.set('from',oFrom + [0 0 0.1]);
 [scene, results] = piWRS(thisR);
+scene = sceneSet(scene,'renderflag', 'clip'); % HDR to deal with specks
 scenes = [scenes, scene];
 
 %%  Materials
@@ -107,6 +108,7 @@ for ii = 1:numel(ourMaterials)
     try
         thisR.set('asset','head_O','material name',ourMaterials{ii}.name);
         [scene, results] = piWRS(thisR);
+        scene = sceneSet(scene,'renderflag', 'clip'); % to deal with specks
         scenes = [scenes, scene];
     catch
         warning('Material: %s failed. \n',allMaterials{ii});
