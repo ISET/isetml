@@ -78,10 +78,15 @@ thisR.set('lights','all','delete');
 thisR.set('skymap','sky-brightfences.exr');
 
 % Add our list of materials
-allMaterials = piMaterialPresets('list');
+% this doesn't work yet/anymore
+% as many of the materials are broken
+%allMaterials = piMaterialPresets('list');
 
-% If debugging, pick a couple for starters:
-%allMaterials = {'dots','checkerboard','wood-mahogany'}; % 'macbethchart'};
+% If debugging, pick a couple for starters:1: checkerboard 
+allMaterials = {... %'marble-beige', 'tiles-marble-sagegreen-brick',...
+    'mirror', 'metal-ag','chrome','rough-metal','metal-au',... 
+    'metal-cu','metal-cuzn','metal-mgo','metal-tio2', ... 
+    'ringrays','slantededge','dots','checkerboard','wood-mahogany','macbethchart'};
 
 % look to see which objects we have, to assign materials
 %thisR.show('objects')
@@ -100,7 +105,7 @@ ourMaterialsMap = thisR.get('materials');
 ourMaterials = values(ourMaterialsMap);
 for ii = 1:numel(ourMaterials)
     try
-        thisR.set('asset','head_O','material',ourMaterials{ii});
+        thisR.set('asset','head_O','material name',ourMaterials{ii}.name);
         [scene, results] = piWRS(thisR);
         scenes = [scenes, scene];
     catch
@@ -142,12 +147,14 @@ thisR.set('asset','head_O','material name','head');
 scenes = [scenes, scene];
 %}
 % We can loop through and generate a bunch of separate figures
+%% 
 faceImages = {};
 for ii=1:numel(scenes)
     faceImages{ii} = facesDetect('scene',scenes{ii}, ...
         'interactive',true,'method','MTCNN');
     % trying to get rid of specular noise / maybe an nr call?
-    %faceImages{ii} = imadjust(faceImages{ii},[0 0 0 ; .95 .95 .95]);
+    %faceImages{ii}(faceImages{ii}(:)>220) = 0;
+    %faceImages{ii} = imadjust(faceImages{ii},[.1 .1 .1 ; .95 .95 .95]);
 end
 ieNewGraphWin();
 montage(faceImages);
