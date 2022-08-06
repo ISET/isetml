@@ -26,7 +26,7 @@ scenes = {};
 scenes = [scenes, scene];
 %%
 % Because it is a full 3D head, we can rotate and re-render
-thisR.set('asset','head_O','rotate',[5 20 0]);
+thisR.set('asset','001_head_O','rotate',[5 20 0]);
 [scene, results] = piWRS(thisR);
 scenes = [scenes, scene];
 
