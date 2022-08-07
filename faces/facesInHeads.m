@@ -18,11 +18,11 @@ if ~piDockerExists, piDockerConfig; end
 % Load the canonical pbrt head (until we get some others!)
 thisR = piRecipeDefault('scene name','head');
 
-thisR.set('rays per pixel',64); 
+thisR.set('rays per pixel',1024); 
 % we probably don't need much resolution, given the low-rez of most
-% face feature algorithms
-thisR.set('film resolution',[320 320]);
-thisR.set('n bounces',5);
+% face feature algorithms -- set higher for higher quality "poster"
+thisR.set('film resolution',[320 320]*4);
+thisR.set('n bounces',6);
 
 % Set up a list of scenes that we render for later evaluation
 scenes = {};
@@ -184,10 +184,10 @@ faceImages = {};
 for ii=1:numel(scenes)
     
     if isequal(intent, 'science')
-        faceImages{ii} = facesDetect('scene',scenes{ii}, ...
+        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
             'interactive',true,'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW> 
     else
-        faceImages{ii} = facesDetect('scene',scenes{ii}, ...
+        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
             'interactive',true,'method','MTCNN'); %#ok<SAGROW> 
     end
 
@@ -195,8 +195,8 @@ for ii=1:numel(scenes)
     %faceImages{ii}(faceImages{ii}(:)>220) = 0;
     %faceImages{ii} = imadjust(faceImages{ii},[.1 .1 .1 ; .95 .95 .95]);
 end
-ieNewGraphWin();
-montage(faceImages);
+ieNewGraphWin([],[],'What makes a face?');
+montage(faceImages,'ThumbnailSize',[]);
 
 % Now we have an array of images
 

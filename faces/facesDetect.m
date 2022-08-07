@@ -56,14 +56,18 @@ switch options.method
 
 end
 
+fontSize = 36;
+font = 'Palatino Linotype Bold';
 % add a rectangle showing any found faces as a box with text
 if ~isempty(options.caption)
     iSize = size(ourImg);
     iHeight = iSize(1);
-    ourImg = insertObjectAnnotation(ourImg,"rectangle",[0 iHeight 200 50], options.caption);
+    ourImg = insertObjectAnnotation(ourImg,"rectangle",[0 iHeight 200 50], ...
+        options.caption, 'FontSize', fontSize, 'Font',font);
 end
 if ~isempty(foundFaces)
-    faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face');
+    faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face', ...
+        'Font',font);
 else
     faceOut = ourImg;
 end
