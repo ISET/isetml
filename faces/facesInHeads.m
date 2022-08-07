@@ -34,20 +34,30 @@ scenes = [scenes, scene];
 % Because it is a full 3D head, we can rotate and re-render
 thisR.set('asset','001_head_O','rotate',[5 20 0]);
 [scene, results] = piWRS(thisR);
+scene.name = 'rotate 5 20 0';
 scenes = [scenes, scene];
 
+camStart = thisR.get('from');
 %% Experiment with camera rotation
 direction = thisR.get('fromto');
-direction = direction/norm(direction);
-nsamples = 8;
-frompts = piRotateFrom(thisR,direction,'nsamples',nsamples,'degrees',10,'method','circle');
+% not sure whether we want this?...
+%direction = direction/norm(direction);
+nsamples = 11;
+degrees = 8;
+frompts = piRotateFrom(thisR,direction,'nsamples',nsamples,'degrees',degrees,'method','circle');
 
 %% Do it.
 for ii=1:size(frompts,2)
     thisR.set('from',frompts(:,ii));
     [scene, results] = piWRS(thisR, 'render flag','hdr');
+    scene.name = ['rotate ' sprintf('%2.2f %2.2f %2.2f',...
+        frompts(1,ii), frompts(2,ii), frompts(3,ii))];
     scenes = [scenes, scene];
 end
+
+% put the camera back
+thisR.set('from',camStart);
+
 %% Change the camera position
 oFrom = thisR.get('from');
 oTo = thisR.get('to');
@@ -69,6 +79,7 @@ skymaps = {'sky-brightfences', ...
 for ii = 1:numel(skymaps)
     thisR.set('skymap',skymaps{ii});
     [scene, results] = piWRS(thisR);
+    scene.name = skymaps{ii};
     scenes = [scenes, scene];
 end
 
