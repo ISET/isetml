@@ -185,10 +185,10 @@ for ii=1:numel(scenes)
     
     if isequal(intent, 'science')
         faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
-            'interactive',true,'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW> 
+            'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW> 
     else
         faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
-            'interactive',true,'method','MTCNN'); %#ok<SAGROW> 
+            'method','MTCNN'); %#ok<SAGROW> 
     end
 
     % trying to get rid of specular noise / maybe an nr call?
