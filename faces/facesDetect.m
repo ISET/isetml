@@ -13,6 +13,7 @@ arguments
     options.scene = ''; % get a flat image from a scene and evaluate it
     options.interactive = true; % whether to show results
     options.method = 'MTCNN'; %'Viola-Jones' % Viola-Jones Cascade is the default
+    options.caption = '';
 end
 
 % Read an image or a video frame or an ISET scene
@@ -56,6 +57,11 @@ switch options.method
 end
 
 % add a rectangle showing any found faces as a box with text
+if ~isempty(options.caption)
+    iSize = size(ourImg);
+    iHeight = iSize(1);
+    ourImg = insertObjectAnnotation(ourImg,"rectangle",[0 iHeight 200 50], options.caption);
+end
 if ~isempty(foundFaces)
     faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face');
 else

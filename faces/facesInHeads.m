@@ -5,6 +5,12 @@
 % D.Cardinal, Stanford, 2022
 %
 %%
+
+% intent determines whether we add captions stating the material
+% (e.g. 'science' or 'art')
+intent = 'science';
+%intent = 'art';
+
 ieInit;
 if ~piDockerExists, piDockerConfig; end
 
@@ -12,10 +18,10 @@ if ~piDockerExists, piDockerConfig; end
 % Load the canonical pbrt head (until we get some others!)
 thisR = piRecipeDefault('scene name','head');
 
-thisR.set('rays per pixel',128); 
+thisR.set('rays per pixel',64); 
 % we probably don't need much resolution, given the low-rez of most
 % face feature algorithms
-thisR.set('film resolution',[320 320]*2);
+thisR.set('film resolution',[320 320]);
 thisR.set('n bounces',5);
 
 % Set up a list of scenes that we render for later evaluation
@@ -78,16 +84,16 @@ scenes = [scenes, scene];
 thisR.set('lights','all','delete');
 thisR.set('skymap','sky-brightfences.exr');
 
-% Add our list of materials
-% this doesn't work yet/anymore
-% as many of the materials are broken
-%allMaterials = piMaterialPresets('list');
+% Add our list of materials, or pick and choose
+allMaterials = piMaterialPresets('list');
 
 % If debugging, pick a couple for starters:1: checkerboard 
+%{
 allMaterials = {... %'marble-beige', 'tiles-marble-sagegreen-brick',...
     'mirror', 'metal-ag','chrome','rough-metal','metal-au',... 
     'metal-cu','metal-cuzn','metal-mgo','metal-tio2', ... 
     'ringrays','slantededge','dots','checkerboard','wood-mahogany','macbethchart'};
+%}
 
 % look to see which objects we have, to assign materials
 %thisR.show('objects')
@@ -106,12 +112,13 @@ ourMaterialsMap = thisR.get('materials');
 ourMaterials = values(ourMaterialsMap);
 for ii = 1:numel(ourMaterials)
     try
-        thisR.set('asset','head_O','material name',ourMaterials{ii}.name);
+        thisR.set('asset','001_head_O','material name',ourMaterials{ii}.name);
         [scene, results] = piWRS(thisR);
         scene = sceneSet(scene,'renderflag', 'clip'); % to deal with specks
+        scene = sceneSet(scene,'name',ourMaterials{ii}.name);
         scenes = [scenes, scene];
-    catch
-        warning('Material: %s failed. \n',allMaterials{ii});
+    catch EX
+        warning('Material: %s failed with %s. \n',allMaterials{ii}, EX.message);
     end
 end
 
@@ -152,8 +159,15 @@ scenes = [scenes, scene];
 %% 
 faceImages = {};
 for ii=1:numel(scenes)
-    faceImages{ii} = facesDetect('scene',scenes{ii}, ...
-        'interactive',true,'method','MTCNN');
+    
+    if isequal(intent, 'science')
+        faceImages{ii} = facesDetect('scene',scenes{ii}, ...
+            'interactive',true,'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW> 
+    else
+        faceImages{ii} = facesDetect('scene',scenes{ii}, ...
+            'interactive',true,'method','MTCNN'); %#ok<SAGROW> 
+    end
+
     % trying to get rid of specular noise / maybe an nr call?
     %faceImages{ii}(faceImages{ii}(:)>220) = 0;
     %faceImages{ii} = imadjust(faceImages{ii},[.1 .1 .1 ; .95 .95 .95]);
