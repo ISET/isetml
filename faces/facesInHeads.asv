@@ -122,7 +122,7 @@ for ii = 1:numel(ourMaterials)
         scene = sceneSet(scene,'renderflag', 'clip'); % to deal with specks
         scenes = [scenes, scene];
     catch EX
-        warning('Material: %s failed %s. \n',allMaterials{ii}, EX.message);
+        warning('Material: %s failed %s. \n',allMaterials{ii});
     end
 end
 
