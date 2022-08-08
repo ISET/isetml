@@ -14,6 +14,7 @@ arguments
     options.interactive = true; % whether to show results
     options.method = 'MTCNN'; %'Viola-Jones' % Viola-Jones Cascade is the default
     options.caption = '';
+    options.fontSize = 18;
 end
 
 % Read an image or a video frame or an ISET scene
@@ -33,8 +34,10 @@ end
 
 switch options.method
     case 'Viola-Jones'
-        % Default detector is set for faces
-        faceDetect = vision.CascadeObjectDetector();
+        % Default detector is set for front faces
+        % But we can also use profiles
+        faceDetect = vision.CascadeObjectDetector('FrontalFaceCART');
+        %faceDetect = vision.CascadeObjectDetector('ProfileFace');
 
         % merge threshhold impacts accuracy (1 finds tons of things, 4 is default, 8 max?)
         % from some simple experiments, 3 seems like a good compromise
@@ -56,18 +59,17 @@ switch options.method
 
 end
 
-fontSize = 36;
 font = 'Palatino Linotype Bold';
 % add a rectangle showing any found faces as a box with text
 if ~isempty(options.caption)
     iSize = size(ourImg);
     iHeight = iSize(1);
     ourImg = insertObjectAnnotation(ourImg,"rectangle",[0 iHeight 200 50], ...
-        options.caption, 'FontSize', fontSize, 'Font',font);
+        options.caption, 'FontSize', options.fontSize, 'Font',font);
 end
 if ~isempty(foundFaces)
     faceOut = insertObjectAnnotation(ourImg,"rectangle",foundFaces,'Face', ...
-        'Font',font);
+        'Font',font,'FontSize',options.fontSize);
 else
     faceOut = ourImg;
 end
