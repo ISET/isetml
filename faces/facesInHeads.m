@@ -1,15 +1,27 @@
 %% cpFacesHeads
 %
 %
-% Use Brian's Heads with Face Detector
+% Use PBRT head and materials with Face Detector
 % D.Cardinal, Stanford, 2022
 %
 %%
 
 % intent determines whether we add captions stating the material
+% and how high-fidelity we make the output
 % (e.g. 'science' or 'art')
 intent = 'science';
 %intent = 'art';
+
+switch intent
+    case 'art'
+        baseRez = 640;
+        rays = 1024;
+        thumbnailSize = [];
+    case 'science'
+        baseRez = 320;
+        rays = 256;
+        thumbnailSize = [baseRez inf];
+end
 
 ieInit;
 if ~piDockerExists, piDockerConfig; end
@@ -17,11 +29,12 @@ if ~piDockerExists, piDockerConfig; end
 %%
 % Load the canonical pbrt head (until we get some others!)
 thisR = piRecipeDefault('scene name','head');
+headAsset = '001_Head_O';
 
-thisR.set('rays per pixel',1024); 
+thisR.set('rays per pixel',rays);
 % we probably don't need much resolution, given the low-rez of most
 % face feature algorithms -- set higher for higher quality "poster"
-thisR.set('film resolution',[320 320]*4);
+thisR.set('film resolution',[baseRez baseRez]*2);
 thisR.set('n bounces',6);
 
 % Set up a list of scenes that we render for later evaluation
@@ -32,31 +45,14 @@ scenes = {};
 scenes = [scenes, scene];
 %%
 % Because it is a full 3D head, we can rotate and re-render
-thisR.set('asset','001_head_O','rotate',[5 20 0]);
+thisR.set('asset',headAsset,'rotate',[5 20 0]);
 [scene, results] = piWRS(thisR);
 scene.name = 'rotate 5 20 0';
 scenes = [scenes, scene];
 
-camStart = thisR.get('from');
+
 %% Experiment with camera rotation
-direction = thisR.get('fromto');
-% not sure whether we want this?...
-%direction = direction/norm(direction);
-nsamples = 11;
-degrees = 8;
-frompts = piRotateFrom(thisR,direction,'nsamples',nsamples,'degrees',degrees,'method','circle');
-
-%% Do it.
-for ii=1:size(frompts,2)
-    thisR.set('from',frompts(:,ii));
-    [scene, results] = piWRS(thisR, 'render flag','hdr');
-    scene.name = ['rotate ' sprintf('%2.2f %2.2f %2.2f',...
-        frompts(1,ii), frompts(2,ii), frompts(3,ii))];
-    scenes = [scenes, scene];
-end
-
-% put the camera back
-thisR.set('from',camStart);
+doRotation(thisR);
 
 %% Change the camera position
 oFrom = thisR.get('from');
@@ -66,22 +62,7 @@ oUp = thisR.get('up');
 thisR.set('object distance', 1.3);
 
 % relight the scene with a variety of skymaps
-thisR.set('lights','all','delete');
-
-skymaps = {'sky-brightfences', ...
-    'glacier_latlong.exr', ...
-    'sky-sun-clouds.exr', ...
-    'sky-rainbow.exr', ...
-    'ext_LateAfternoon_Mountains_CSP.exr', ...
-    'sky-cathedral_interior'
-    };
-
-for ii = 1:numel(skymaps)
-    thisR.set('skymap',skymaps{ii});
-    [scene, results] = piWRS(thisR);
-    scene.name = skymaps{ii};
-    scenes = [scenes, scene];
-end
+doSkymaps(thisR);
 
 %{
 % This adds a small xyz coordinate legend if we want it
@@ -102,24 +83,74 @@ scene = sceneSet(scene,'renderflag', 'clip'); % HDR to deal with specks
 scenes = [scenes, scene];
 
 %%  Materials
+doMaterials(thisR);
 
+% We can loop through our results and generate a bunch of separate figures
+%%
+faceImages = {};
+for ii=1:numel(scenes)
+
+    if isequal(intent, 'science')
+        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
+            'interactive',true,'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW>
+    else
+        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
+            'interactive',true,'method','MTCNN'); %#ok<SAGROW>
+    end
+
+    % trying to get rid of specular noise / maybe an nr call?
+    %faceImages{ii}(faceImages{ii}(:)>220) = 0;
+    %faceImages{ii} = imadjust(faceImages{ii},[.1 .1 .1 ; .95 .95 .95]);
+end
+ieNewGraphWin([],[],'What makes a face?');
+montage(faceImages,'ThumbnailSize',[]);
+
+function doRotation(thisR)
+camStart = thisR.get('from');
+direction = thisR.get('fromto');
+nsamples = 11;
+degrees = 8;
+frompts = piRotateFrom(thisR,direction,'nsamples',nsamples,'degrees',degrees,'method','circle');
+
+%% Do it.
+for ii=1:size(frompts,2)
+    thisR.set('from',frompts(:,ii));
+    [scene, results] = piWRS(thisR, 'render flag','hdr');
+    scene.name = ['rotate ' sprintf('%2.2f %2.2f %2.2f',...
+        frompts(1,ii), frompts(2,ii), frompts(3,ii))];
+    scenes = [scenes, scene];
+end
+
+% put the camera back
+thisR.set('from',camStart);
+end
+
+function doSkymaps(thisR)
+thisR.set('lights','all','delete');
+
+skymaps = {'sky-brightfences', ...
+    'glacier_latlong.exr', ...
+    'sky-sun-clouds.exr', ...
+    'sky-rainbow.exr', ...
+    'ext_LateAfternoon_Mountains_CSP.exr', ...
+    'sky-cathedral_interior'
+    };
+
+for ii = 1:numel(skymaps)
+    thisR.set('skymap',skymaps{ii});
+    [scene, results] = piWRS(thisR);
+    scene.name = skymaps{ii};
+    scenes = [scenes, scene];
+end
+end
+
+function doMaterials(thisR)
 % Use a nice skylight
 thisR.set('lights','all','delete');
 thisR.set('skymap','sky-brightfences.exr');
 
 % Add our list of materials, or pick and choose
 allMaterials = piMaterialPresets('list');
-
-% If debugging, pick a couple for starters:1: checkerboard 
-%{
-allMaterials = {... %'marble-beige', 'tiles-marble-sagegreen-brick',...
-    'mirror', 'metal-ag','chrome','rough-metal','metal-au',... 
-    'metal-cu','metal-cuzn','metal-mgo','metal-tio2', ... 
-    'ringrays','slantededge','dots','checkerboard','wood-mahogany','macbethchart'};
-%}
-
-% look to see which objects we have, to assign materials
-%thisR.show('objects')
 
 % Loop through our material list
 for ii = 1:numel(allMaterials)
@@ -144,84 +175,4 @@ for ii = 1:numel(ourMaterials)
         warning('Material: %s failed with %s. \n',allMaterials{ii}, EX.message);
     end
 end
-
-%% Now Textures
-textures = {'macbethchart', 'DupontPaintChip_Vhrel', ...
-    'Hair_Vhrel', 'Clothes_Vhrel'};
-
-%{
-BROKEN:
-for ii = 1:numel(textures)
-    thisR.get('texture',textures{ii});
-    thisR.set('texture',textures{ii},'scale',0.3);
-    [scene, results] = piWRS(thisR);
-    scenes = [scenes, scene];
 end
-%}
-
-%{
-needs help:
-
-thisR.set('asset','001_head_O','material name','macbethchart');
-piWRS(thisR); % save it out with modified asset
-thisR.get('texture','macbethchart');
-thisR.set('texture','macbethchart','uscale',0.3);
-thisR.set('texture','macbethchart','vscale',0.3);
-[scene, results] = piWRS(thisR);
-scenes = [scenes, scene];
-
-thisR.set('texture','macbethchart','vscale',10);
-thisR.set('texture','macbethchart','uscale',10);
-
-thisR.set('asset','head_O','material name','head');
-
-[scene, results] = piWRS(thisR);
-scenes = [scenes, scene];
-%}
-% We can loop through and generate a bunch of separate figures
-%% 
-faceImages = {};
-for ii=1:numel(scenes)
-    
-    if isequal(intent, 'science')
-        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
-            'interactive',true,'method','MTCNN','caption',scenes{ii}.name); %#ok<SAGROW> 
-    else
-        faceImages{ii} = facesDetect('scene',scenes{ii}, 'interactive',false,...
-            'interactive',true,'method','MTCNN'); %#ok<SAGROW> 
-    end
-
-    % trying to get rid of specular noise / maybe an nr call?
-    %faceImages{ii}(faceImages{ii}(:)>220) = 0;
-    %faceImages{ii} = imadjust(faceImages{ii},[.1 .1 .1 ; .95 .95 .95]);
-end
-ieNewGraphWin([],[],'What makes a face?');
-montage(faceImages,'ThumbnailSize',[]);
-
-% Now we have an array of images
-
-
-%%
-% The depth map is crazy, though.
-% scenePlot(scene,'depth map');
-
-%%
-
-% depthRange = thisR.get('depth range');
-% depthRange = [1 1];
-
-%{
-    we don't handle oi's yet
-% Need to un-comment one lens to have the script run
-thisR.set('lens file','fisheye.87deg.100.0mm.json');
-% lensFiles = lensList;
-lensfile = 'fisheye.87deg.100.0mm.json';
-% lensfile  = 'dgauss.22deg.50.0mm.json';    % 30 38 18 10
-
-fprintf('Using lens: %s\n',lensfile);
-thisR.camera = piCameraCreate('omni','lensFile',lensfile);
-thisR.set('focal distance',5);
-thisR.set('film diagonal',33);
-
-oi = piWRS(thisR);
-%}
