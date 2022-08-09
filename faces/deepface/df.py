@@ -5,4 +5,4 @@
 #
 from deepface import DeepFace
 
-verification = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
+verification = DeepFace.verify(img1_path = "b:/iset/isetml/data/test_faces/Pe_Lanes_0002.jpg", img2_path = "b:/iset/isetml/data/test_faces/Pe_Lanes_0007.jpg");
