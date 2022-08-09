@@ -9,5 +9,5 @@ DF = py.importlib.import_module('deepface');
 
 img1_path = "c:/iset/isetml/data/test_faces/Pe_Lanes_0002.jpg";
 img2_path = "c:/iset/isetml/data/test_faces/Pe_Lanes_0007.jpg";
-verification = DF.verify(img1_path = img1_path, img2_path = img2_path);
+verification = py.deepface.DeepFace.verify(img1_path = img1_path, img2_path = img2_path);
 %verification = py.deepface.DeepFace.verify(img1_path = img1_path, img2_path = img2_path);
