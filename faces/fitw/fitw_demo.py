@@ -11,7 +11,7 @@ labels = fetch_lfw_pairs.target
 target_names = fetch_lfw_pairs.target_names
 
 actuals = []; predictions = []
-for i in range(0, pairs.shape[0]):
+for i in range(0, 1): # pairs.shape[0]):
    pair = pairs[i]
    img1 = pair[0]
    img2 = pair[1]
@@ -19,15 +19,15 @@ for i in range(0, pairs.shape[0]):
    fig = plt.figure()
  
    ax1 = fig.add_subplot(1,3,1)
-   plt.imshow(img1/255)
+   plt.imshow(img1)
  
    ax2 = fig.add_subplot(1,3,2)
-   plt.imshow(img2/255)
+   plt.imshow(img2)
  
    ax3 = fig.add_subplot(1,3,3)
    plt.text(0, 0.50, target_names[labels[i]])
  
-   #plt.show()
+   plt.show()
 
 #!pip install deepface
 from deepface import DeepFace
@@ -35,7 +35,7 @@ from deepface import DeepFace
 #deepface expects bgr instead of rgb
 img1 = img1[:,:,::-1]; img2 = img2[:,:,::-1]
 obj = DeepFace.verify(img1, img2
-   , model_name = 'Dlib', distance_metric = 'euclidean')
+   , enforce_detection = False, model_name = 'Dlib', distance_metric = 'euclidean')
 prediction = obj["verified"]
 predictions.append(prediction)
  
