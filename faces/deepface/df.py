@@ -3,8 +3,10 @@
 #
 # requires installing deepface via pip or similar
 #
-from deepface import DeepFace
+#from deepface import DeepFace
+import deepface
 
 verification = '';
-verification = DeepFace.verify(img1_path = "b:/iset/isetml/data/test_faces/Pe_Lanes_0002.jpg", img2_path = "b:/iset/isetml/data/test_faces/Pe_Lanes_0007.jpg");
+root = 'c:/'
+verification = deepface.DeepFace.verify(img1_path = "c:/iset/isetml/data/test_faces/Pe_Lanes_0002.jpg", img2_path = "c:/iset/isetml/data/test_faces/Pe_Lanes_0007.jpg")
 print(verification['verified'])
