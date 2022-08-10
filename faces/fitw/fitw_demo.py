@@ -9,6 +9,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import matplotlib.pyplot as plt
 from deepface import DeepFace
 from tqdm import tqdm
+import google
 import pandas as pd
 
 fetch_lfw_pairs = fetch_lfw_pairs(subset = 'test', color = True, resize = 1)
@@ -23,7 +24,11 @@ print("instances: ", instances)
 from deepface.basemodels import VGGFace, Facenet, OpenFace, FbDeepFace
 from deepface.basemodels.DlibResNet import DlibResNet
 
-"""vgg_model = VGGFace.loadModel()
+vgg_model = VGGFace.loadModel()
+print("VGG-Face loaded")
+
+"""
+vgg_model = VGGFace.loadModel()
 print("VGG-Face loaded")
 
 facenet_model = Facenet.loadModel()
@@ -37,8 +42,8 @@ print("DeepFace loaded")
 
 """
 
-dlib_model = DlibResNet()
-print("Dlib loaded")
+#dlib_model = DlibResNet()
+#print("Dlib loaded")
 
 plot = False
 
@@ -53,7 +58,7 @@ for i in pbar:
     
     #obj = DeepFace.verify(img1, img2, model_name = 'VGG-Face', model = vgg_model)
     #obj = DeepFace.verify(img1, img2, model_name = 'Dlib', model = dlib_model, distance_metric = 'euclidean', enforce_detection=False)
-    obj = DeepFace.verify(img1, img2, enforce_detection=False)
+    obj = DeepFace.verify(img1, img2, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
     prediction = obj["verified"]
     predictions.append(prediction)
     
