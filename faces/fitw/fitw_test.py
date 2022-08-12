@@ -24,23 +24,28 @@ print("VGG-Face loaded")
 actuals = []; predictions = []; distances = []
 
 # Set face dir & get faces (some are in the vistalab repo)
-faceDir = "c:/iset/vistalab/faces/david"
+vLabRepo = "c:/iset/vistalab"
 
-baseFace = os.path.join(faceDir, 'Baseline_Face.jpg')
-# compare to all faces, including our sample
-otherFaces = glob.glob(os.path.join(faceDir, '*.jpg'))
+faceDirs =  [os.path.join(vLabRepo, "faces", "annie")]
+faceDirs.append(os.path.join(vLabRepo, "faces", "david"))
 
 ii = 0
 faceFig = plt.figure()
-for img in otherFaces:
-    ii += 1
-    obj = DeepFace.verify(baseFace, img, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
-    #print(obj['verified'])
+for dir in faceDirs:
 
-    plt.subplot(4,4, ii)
-    plt.axis('off')
-    plt.title(obj['verified'])
-    plt.imshow(plt.imread(img))
+    baseFace = os.path.join(dir, 'Baseline_Face.jpg')
+    # compare to all faces, including our sample
+    otherFaces = glob.glob(os.path.join(dir, '*.jpg'))
+
+    for img in otherFaces:
+        ii += 1
+        obj = DeepFace.verify(baseFace, img, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
+        #print(obj['verified'])
+
+        plt.subplot(4,4, ii)
+        plt.axis('off')
+        plt.title(obj['verified'])
+        plt.imshow(plt.imread(img))
 
 plt.show()
 plt.pause
