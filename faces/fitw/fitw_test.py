@@ -9,8 +9,10 @@ from deepface import DeepFace
 from tqdm import tqdm
 import os
 import glob
+import imageio
 import google
 import pandas as pd
+import cv2
 
 from deepface.basemodels import VGGFace, Facenet, OpenFace, FbDeepFace
 from deepface.basemodels.DlibResNet import DlibResNet
@@ -24,10 +26,13 @@ print("VGG-Face loaded")
 actuals = []; predictions = []; distances = []
 
 # Set face dir & get faces (some are in the vistalab repo)
-vLabRepo = "c:/iset/vistalab"
+vLabRepo = 'b:/iset/vistalab' # in matlab is: vlRootPath();
 
 faceDirs =  [os.path.join(vLabRepo, "faces", "annie")]
 faceDirs.append(os.path.join(vLabRepo, "faces", "david"))
+faceDirs.append(os.path.join(vLabRepo, "faces", "band"))
+
+faceDim = (200, 200)
 
 ii = 0
 faceFig = plt.figure()
@@ -37,15 +42,18 @@ for dir in faceDirs:
     # compare to all faces, including our sample
     otherFaces = glob.glob(os.path.join(dir, '*.jpg'))
 
-    for img in otherFaces:
+    for imgFile in otherFaces:
         ii += 1
+        img = cv2.imread(imgFile)
+        img = cv2.resize(img, faceDim)
+        rgbImg = img
         obj = DeepFace.verify(baseFace, img, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
         #print(obj['verified'])
 
-        plt.subplot(4,4, ii)
+        plt.subplot(6,6, ii)
         plt.axis('off')
         plt.title(obj['verified'])
-        plt.imshow(plt.imread(img))
+        plt.imshow(rgbImg)
 
 plt.show()
 plt.pause
