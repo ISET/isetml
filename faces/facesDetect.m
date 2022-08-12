@@ -1,6 +1,7 @@
-function  [faceOut, foundFaces] = cpFacesDetect(options)
-%CPFACESDETECT Summary of this function goes here
+function  [faceOut, foundFaces] = facesDetect(options)
+%FACESDETECT Summary of this function goes here
 %   Detect Faces in images using Viola-Jones algorithm
+%    or MTCNN algorithm
 %   Requires Vision toolbox
 %
 % D. Cardinal, Stanford University, 2022
