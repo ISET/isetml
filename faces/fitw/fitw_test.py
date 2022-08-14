@@ -51,22 +51,36 @@ faceRowCol = 9 # make sure it is big enough
 faceFig = plt.figure()
 for dir in faceDirs:
 
+    # split out dirname for labeling
+    pathParts = os.path.split(dir)
     baseFace = os.path.join(dir, 'Baseline_Face.jpg')
     # compare to all faces, including our sample
     otherFaces = glob.glob(os.path.join(dir, '*.jpg'))
 
-
+    # Need a smaller font to fit
+    titleFont = {'family':'serif','color':'blue','size':6}
     for imgFile in otherFaces:
         ii += 1
         img = plt.imread(imgFile)
         img = cv2.resize(img, faceDim)
         rgbImg = img.copy()
-        obj = DeepFace.verify(baseFace, img, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
-        #print(obj['verified'])
+        faceVerify = DeepFace.verify(baseFace, img, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
+        faceAnalyze = DeepFace.analyze(img, enforce_detection=False)
 
         plt.subplot(7, 8, ii)
         plt.axis('off')
-        plt.title(obj['verified'])
+
+        # figure out most likely emotion
+        eVals = faceAnalyze['emotion']
+        eMostLikely = max(eVals, key=eVals.get)
+
+        if faceVerify['verified'] == True:
+            tString = pathParts[1] + ' ' + eMostLikely
+        else:
+            tString = '??' + ' ' + eMostLikely
+        
+        plt.title(tString, fontdict=titleFont)
+
         plt.imshow(rgbImg)
 
 plt.show()
