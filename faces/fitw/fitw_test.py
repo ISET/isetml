@@ -27,7 +27,12 @@ print("VGG-Face loaded")
 actuals = []; predictions = []; distances = []
 
 # Set face dir & get faces (some are in the vistalab repo)
-vLabRepo = 'c:/iset/vistalab' # in matlab is: vlRootPath();
+# Assume that the vistalab repo is relative to our drive:
+ourPath = os.path.splitdrive(os.getcwd())
+ourDrive = os.path.join(ourPath[0],'/')
+vLabRepo = os.path.join(ourDrive, "iset", "vistalab")
+# If we can query matlab:
+#vLabRepo = 'c:/iset/vistalab' # in matlab is: vlRootPath();
 
 faceDirs =  [os.path.join(vLabRepo, "faces", "annie")]
 faceDirs.append(os.path.join(vLabRepo, "faces", "david"))
