@@ -10,7 +10,7 @@ from deepface import DeepFace
 from tqdm import tqdm
 import os
 import glob
-import imageio
+#import imageio
 import google
 import pandas as pd
 import cv2
@@ -27,7 +27,7 @@ print("VGG-Face loaded")
 actuals = []; predictions = []; distances = []
 
 # Set face dir & get faces (some are in the vistalab repo)
-vLabRepo = 'b:/iset/vistalab' # in matlab is: vlRootPath();
+vLabRepo = 'c:/iset/vistalab' # in matlab is: vlRootPath();
 
 faceDirs =  [os.path.join(vLabRepo, "faces", "annie")]
 faceDirs.append(os.path.join(vLabRepo, "faces", "david"))
