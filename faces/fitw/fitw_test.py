@@ -1,6 +1,7 @@
-# requires matplotlib, deepface, dlib
+# requires matplotlib, deepface, dlib, scikit-learn, opencv
 # NOTE: For gpu, install tensorflow-gpu first
 #       the pip install deepface --no-deps
+#       (might mean you also need fire, gdown)
 from sklearn.datasets import fetch_lfw_pairs
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import matplotlib.pyplot as plt
@@ -74,10 +75,17 @@ for dir in faceDirs:
         eVals = faceAnalyze['emotion']
         eMostLikely = max(eVals, key=eVals.get)
 
+        # now age
+        eAge = faceAnalyze['age']
+        # and race
+        rVals = faceAnalyze['race']
+        rMostLikely = max(rVals, key=rVals.get)
+        # add + str(eAge) +, but so far the results are pretty lame
+        # add + rMostLikely +, but so far the results are prett lame
         if faceVerify['verified'] == True:
-            tString = pathParts[1] + ' ' + eMostLikely
+            tString = pathParts[1] + ' ' +  eMostLikely
         else:
-            tString = '??' + ' ' + eMostLikely
+            tString = '??' + ' ' +  eMostLikely
         
         plt.title(tString, fontdict=titleFont)
 
