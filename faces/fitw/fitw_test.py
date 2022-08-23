@@ -1,3 +1,7 @@
+# Test FITW-trained model on local faces
+# 
+# D. Cardinal, Stanford University, 2022
+#
 # requires matplotlib, deepface, dlib, scikit-learn, opencv
 # NOTE: For gpu, install tensorflow-gpu first
 #       the pip install deepface --no-deps

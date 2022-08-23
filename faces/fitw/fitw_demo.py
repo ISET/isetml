@@ -1,6 +1,8 @@
 # Intro code for using Faces in the Wild
-# Original: https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/
 
+# Added options, conda support, iset integration, D. Cardinal, Stanford University
+# Original: https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/
+# 
 # requires matplotlib, sklearn, deepface, dlib
 # NOTE: For gpu, install tensorflow-gpu first
 #       the pip install deepface --no-deps
