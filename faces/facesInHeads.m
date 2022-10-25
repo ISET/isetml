@@ -123,11 +123,11 @@ montage(faceImages,'ThumbnailSize',thumbnailSize);
         frompts = piRotateFrom(thisR,direction,'nsamples',nsamples,'degrees',degrees,'method','circle');
 
         %% Do it.
-        for ii=1:size(frompts,2)
-            thisR.set('from',frompts(:,ii));
-            [scene, results] = piWRS(thisR, 'render flag','hdr');
+        for iii=1:size(frompts,2)
+            thisR.set('from',frompts(:,iii));
+            [scene, ~] = piWRS(thisR, 'render flag','hdr');
             scene.name = ['rotate ' sprintf('%2.2f %2.2f %2.2f',...
-                frompts(1,ii), frompts(2,ii), frompts(3,ii))];
+                frompts(1,iii), frompts(2,iii), frompts(3,ii))];
             scenes = [scenes, scene];
         end
 
@@ -146,10 +146,10 @@ montage(faceImages,'ThumbnailSize',thumbnailSize);
             'sky-cathedral_interior'
             };
 
-        for ii = 1:numel(skymaps)
-            thisR.set('skymap',skymaps{ii});
-            [scene, results] = piWRS(thisR);
-            scene.name = skymaps{ii};
+        for iii = 1:numel(skymaps)
+            thisR.set('skymap',skymaps{iii});
+            [scene, ~] = piWRS(thisR);
+            scene.name = skymaps{iii};
             scenes = [scenes, scene];
         end
     end
@@ -163,9 +163,9 @@ montage(faceImages,'ThumbnailSize',thumbnailSize);
         allMaterials = piMaterialPresets('list');
 
         % Loop through our material list
-        for ii = 1:numel(allMaterials)
+        for iii = 1:numel(allMaterials)
             try
-                piMaterialsInsert(thisR, 'names',allMaterials{ii});
+                piMaterialsInsert(thisR, 'names',allMaterials{iii});
             catch
                 warning('Material: %s insert failed. \n',allMaterials{ii});
             end
@@ -174,15 +174,15 @@ montage(faceImages,'ThumbnailSize',thumbnailSize);
 
         ourMaterialsMap = thisR.get('materials');
         ourMaterials = values(ourMaterialsMap);
-        for ii = 1:numel(ourMaterials)
+        for iii = 1:numel(ourMaterials)
             try
-                thisR.set('asset','001_head_O','material name',ourMaterials{ii}.name);
-                [scene, results] = piWRS(thisR);
+                thisR.set('asset','001_head_O','material name',ourMaterials{iii}.name);
+                [scene, ~] = piWRS(thisR);
                 scene = sceneSet(scene,'renderflag', 'clip'); % to deal with specks
-                scene = sceneSet(scene,'name',ourMaterials{ii}.name);
+                scene = sceneSet(scene,'name',ourMaterials{iii}.name);
                 scenes = [scenes, scene];
             catch EX
-                warning('Material: %s failed with %s. \n',allMaterials{ii}, EX.message);
+                warning('Material: %s failed with %s. \n',allMaterials{iii}, EX.message);
             end
         end
     end
