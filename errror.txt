@@ -1,2 +1,4 @@
 video_clip/1 OCTAGON
 
+video_clip/1 synth
+
