@@ -14,6 +14,7 @@ from tqdm import tqdm
 import google
 import pandas as pd
 
+# Here we are only loading the test set pairs
 fetch_lfw_pairs = fetch_lfw_pairs(subset = 'test', color = True, resize = 1)
 
 pairs = fetch_lfw_pairs.pairs
@@ -47,13 +48,16 @@ print("DeepFace loaded")
 #dlib_model = DlibResNet()
 #print("Dlib loaded")
 
-plot = False
+plot = False # otherwise shows us every pair 1 by 1
 
+# reset stats
 actuals = []; predictions = []; distances = []
 
+# get our data
 pbar = tqdm(range(0, instances))
 
 for i in pbar:
+    # iterate over all the pairs of images
     pair = pairs[i]
     img1 = pair[0]; img2 = pair[1]
     img1 = img1[:,:,::-1]; img2 = img2[:,:,::-1] #opencv expects bgr instead of rgb
@@ -61,15 +65,19 @@ for i in pbar:
     #obj = DeepFace.verify(img1, img2, model_name = 'VGG-Face', model = vgg_model)
     #obj = DeepFace.verify(img1, img2, model_name = 'Dlib', model = dlib_model, distance_metric = 'euclidean', enforce_detection=False)
     obj = DeepFace.verify(img1, img2, model_name = 'VGG-Face', model = vgg_model, enforce_detection=False)
+
+    # Record our prediction for each pair
     prediction = obj["verified"]
     predictions.append(prediction)
     
     distances.append(obj["distance"])
-    
+
+    # get the actual answer  
     label = target_names[labels[i]]
     actual = True if labels[i] == 1 else False
     actuals.append(actual)
     
+    # if we want to preview each pair
     if plot:    
         print(i)
         fig = plt.figure(figsize=(5,2))
@@ -88,6 +96,7 @@ for i in pbar:
 
         plt.show()
 
+# calculate some classic stats based on our performance
 accuracy = 100*accuracy_score(actuals, predictions)
 precision = 100*precision_score(actuals, predictions)
 recall = 100*recall_score(actuals, predictions)
@@ -99,6 +108,7 @@ print("precision: ", precision, "%")
 print("recall: ", recall,"%")
 print("f1: ",f1,"%")
 
+# show our confusion matrix
 cm = confusion_matrix(actuals, predictions)
 cm
  
