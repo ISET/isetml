@@ -1,4 +1,4 @@
-function [scoreStats, scoreTable] = expClassify(varargin)
+function [scoreStats, scoreTable] = irClassify(varargin)
 % Compute classification experiment results for a particular camera design
 %
 %   classifierResults = expClassify(varargin)
